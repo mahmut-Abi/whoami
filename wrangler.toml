@@ -1,0 +1,28 @@
+name = "whoami"
+main = "build/worker/shim.mjs"
+compatibility_date = "2024-06-03"
+
+workers_dev = true
+send_metrics = true
+
+route = { pattern = "whoami.mahmut.one/*", zone_name = "mahmut.one" }
+
+[build]
+command = '''
+    if [ ! -f /usr/bin/worker-build ]; then
+        cargo install -q worker-build
+    fi
+    worker-build --release
+'''
+
+[env.dev]
+build = '''
+    if [ ! -f /usr/bin/worker-build ]; then
+        cargo install -q worker-build
+    fi
+    worker-build --dev
+'''
+
+[dev]
+ip = "127.0.0.1"
+port = 8787
