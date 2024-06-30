@@ -1,4 +1,11 @@
+use serde::{Deserialize, Serialize};
 use worker::*;
+
+#[derive(Debug, Deserialize, Serialize)]
+struct GenericResponse {
+    status: u16,
+    message: String,
+}
 
 #[event(fetch)]
 async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
@@ -9,28 +16,26 @@ async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
         .await
 }
 
-async fn root_handle_request(req: Request, _ctx: RouteContext<()>) -> Result<Response> {
+async fn root_handle_request(req: Request, _ctx: RouteContext<()>) -> worker::Result<Response> {
     console_log!("{:?}", req);
 
     let req_method = req.method();
     console_debug!("request method: {}", req_method);
 
-    // Extract the accept-language header
-    let language = req
-        .headers()
-        .get("accept-language")
-        .and_then(|value| value to_str().ok())
-        .unwrap_or("Unknown");
-    console_debug!("accept language: {:?}", language);
+    let headers = req.headers();
 
-    // Construct and return a response
-    let mut headers = Headers::new();
-    headers.append("Content-Type", "text/plain");
+    let host: String = match headers.get("host") {
+        Ok(host) => match host {
+            Some(a) => a,
+            None => "".to_string(),
+        },
+        Err(_e) => "".to_string(),
+    };
 
-    let body = "Hello, World!"; // Example response body
+    console_debug!("host: {}", host);
 
-    Response::builder()
-        .headers(headers)
-        .body(body.into())
-        .map_err(Into::into)
+    Response::from_json(&GenericResponse {
+        status: 200,
+        message: "Hi!".to_string(),
+    })
 }
