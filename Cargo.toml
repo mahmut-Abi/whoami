@@ -2,6 +2,9 @@
 name = "whoami"
 version = "0.1.0"
 edition = "2021"
+description = 'first rust project.'
+repository = 'https://github.com/mahmut-abi/whoami.git'
+license = 'LICENSE'
 
 [lib]
 crate-type = ["cdylib"]

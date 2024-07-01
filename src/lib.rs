@@ -23,15 +23,7 @@ async fn root_handle_request(req: Request, _ctx: RouteContext<()>) -> worker::Re
     console_debug!("request method: {}", req_method);
 
     let headers = req.headers();
-
-    let host: String = match headers.get("host") {
-        Ok(host) => match host {
-            Some(a) => a,
-            None => "".to_string(),
-        },
-        Err(_e) => "".to_string(),
-    };
-
+    let host = headers.get("host").ok().flatten().unwrap_or_default();
     console_debug!("host: {}", host);
 
     Response::from_json(&GenericResponse {

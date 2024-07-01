@@ -8,21 +8,12 @@ send_metrics = true
 route = { pattern = "whoami.mahmut.one/*", zone_name = "mahmut.one" }
 
 [build]
-command = '''
-    if [ ! -f /usr/bin/worker-build ]; then
-        cargo install -q worker-build
-    fi
-    worker-build --release
-'''
+command = ''' if [ ! -f /usr/bin/worker-build ]; then cargo install -q worker-build; fi; worker-build --release '''
 
 [env.dev]
-build = '''
-    if [ ! -f /usr/bin/worker-build ]; then
-        cargo install -q worker-build
-    fi
-    worker-build --dev
-'''
+build = ''' if [ ! -f /usr/bin/worker-build ]; then cargo install -q worker-build; fi; worker-build --dev '''
 
 [dev]
 ip = "127.0.0.1"
 port = 8787
+
