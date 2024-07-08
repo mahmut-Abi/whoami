@@ -1,11 +1,4 @@
-use serde::{Deserialize, Serialize};
 use worker::*;
-
-#[derive(Debug, Deserialize, Serialize)]
-struct GenericResponse {
-    status: u16,
-    message: String,
-}
 
 #[event(fetch)]
 async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
@@ -17,17 +10,20 @@ async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
 }
 
 async fn root_handle_request(req: Request, _ctx: RouteContext<()>) -> worker::Result<Response> {
-    console_log!("{:?}", req);
+    console_debug!("headers: {:?}", req.headers());
 
-    let req_method = req.method();
-    console_debug!("request method: {}", req_method);
+    let client_ip = req
+        .headers()
+        .get("CF-Connecting-IP")
+        .or(req.headers().get("X-Forwarded-For"))
+        .or(req.headers().get("True-Client-IP"))
+        .or(req.headers().get("X-Real-IP"))
+        .or(req.headers().get("Forwarded"))
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| "Unknown IP".to_string());
 
-    let headers = req.headers();
-    let host = headers.get("host").ok().flatten().unwrap_or_default();
-    console_debug!("host: {}", host);
+    console_log!("Client IP: {}", client_ip);
 
-    Response::from_json(&GenericResponse {
-        status: 200,
-        message: "Hi!".to_string(),
-    })
+    Response::ok(client_ip)
 }
